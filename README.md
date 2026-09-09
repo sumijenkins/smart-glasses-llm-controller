@@ -1,10 +1,10 @@
-# Smart Glasses LLM Controller 👓🤖
+# Smart Glasses LLM Controller
 
 Akıllı gözlük sistemleri için tasarlanmış **FastAPI**, **OpenAI Function Calling (Tools)**, **ASR (Speech-to-Text)**, **TTS (Text-to-Speech)** ve **Vision (Nesne Tespiti / OCR)** entegrasyonlu modüler LLM kontrolcü mimarisi.
 
 ---
 
-## 📐 Proje Mimarisi
+## Proje Mimarisi
 
 ```text
 smart-glasses-llm-controller/
@@ -55,7 +55,7 @@ smart-glasses-llm-controller/
 
 ---
 
-## ⚙️ Kurulum ve Çalıştırma
+## Kurulum ve Çalıştırma
 
 ### 1. Sanal Ortam Oluşturma ve Bağımlılıklar
 
@@ -82,7 +82,7 @@ copy .env.example .env
 
 ---
 
-## 🚀 Sunucu ve İstemciyi Başlatma
+## Sunucu ve İstemciyi Başlatma
 
 ### Backend (FastAPI Sunucusu)
 
@@ -100,7 +100,7 @@ python -m client.client_runner
 
 ---
 
-## 🧪 Testleri Çalıştırma
+## Testleri Çalıştırma
 
 ```bash
 pytest -v
@@ -108,7 +108,7 @@ pytest -v
 
 ---
 
-## 💡 Desteklenen LLM Fonksiyonları (Tools)
+## Desteklenen LLM Fonksiyonları (Tools)
 
 - `open_camera`: Kamerayı başlatır / kare yakalamaya başlar.
 - `stop_camera`: Kamerayı durdurur.
