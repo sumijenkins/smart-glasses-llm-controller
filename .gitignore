@@ -47,3 +47,9 @@ htmlcov/
 *.weights
 captured_*.jpg
 recorded_*.wav
+
+# Video assets (gerçek eğitim videoları commit edilmez)
+assets/videos/*.mp4
+assets/videos/*.avi
+assets/videos/*.mov
+!assets/videos/.gitkeep

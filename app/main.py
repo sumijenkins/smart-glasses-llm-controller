@@ -1,11 +1,12 @@
 """FastAPI main application entrypoint for Smart Glasses LLM Controller.
 
 Implements all REST API endpoints defined in Section 2.1.2.1 Table 2.2:
-  POST /command  - Process natural language command via LLM Function Calling
-  GET  /health   - System health check
-  POST /tts      - Text-to-Speech synthesis
-  POST /asr      - Speech-to-Text transcription
-  
+  POST /command      - Process natural language command via LLM Function Calling
+  GET  /health       - System health check
+  POST /tts          - Text-to-Speech synthesis
+  POST /asr          - Speech-to-Text transcription
+  GET  /api/metrics  - Sistem performans metrikleri (Metrik Raporu)
+
 HTTP status codes per Table 2.4:
   200 OK                  - Command processed successfully
   400 Bad Request         - Invalid command format
@@ -25,6 +26,7 @@ from app.models.response_models import (
     ASRResponse
 )
 from app.core.llm_agent import LLMAgent
+from app.core.metrics import metrics_tracker
 
 # Configure logging
 logging.basicConfig(
@@ -137,6 +139,33 @@ def process_command(request: CommandRequest):
     except Exception as e:
         logger.error(f"Unhandled error in /command: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Sunucu hatası: {str(e)}")
+
+
+# ---------------------------------------------------------------------------
+# GET /api/metrics  (Metrik Raporu — Bölüm 3)
+# ---------------------------------------------------------------------------
+@app.get(
+    "/api/metrics",
+    tags=["Metrics"],
+    summary="Sistem performans metrikleri"
+)
+def get_metrics():
+    """Sistem metrik özetini döner.
+
+    Staj Metrik Raporundaki hedef değerler:
+      avg_inference_ms  ≈ 857 ms  (LLM çıkarım süresi)
+      avg_e2e_seconds   ≈ 2.5 sn  (uçtan uca komut işleme süresi)
+
+    Response format:
+        {
+          "total_sessions": 47,
+          "completed_sessions": 45,
+          "avg_inference_ms": 857.3,
+          "avg_e2e_seconds": 2.48,
+          "success_rate_percent": 95.7
+        }
+    """
+    return metrics_tracker.get_summary()
 
 
 # ---------------------------------------------------------------------------

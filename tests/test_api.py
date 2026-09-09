@@ -1,10 +1,11 @@
 """FastAPI endpoint unit and integration tests.
 
-Tests cover all 4 endpoints from Section 2.1.2.1 Table 2.2:
-  POST /command  - Main LLM command processing
-  GET  /health   - System health check
-  POST /tts      - Text-to-Speech
-  POST /asr      - Speech-to-Text
+Tests cover all endpoints from Section 2.1.2.1 Table 2.2:
+  POST /command      - Main LLM command processing
+  GET  /health       - System health check
+  POST /tts          - Text-to-Speech
+  POST /asr          - Speech-to-Text
+  GET  /api/metrics  - Sistem performans metrikleri (Metrik Raporu)
 
 Request/response formats tested per Sections 2.1.2.3 and Table 2.4.
 
@@ -123,7 +124,7 @@ def test_tts_endpoint_empty_text():
 @patch("client.asr_service.ASRService.transcribe_audio", return_value="Kamerayı aç")  # ← whisper yüklemez
 def test_asr_endpoint(mock_transcribe):
     """Test /asr endpoint returns transcription result (Table 2.2).
-    
+
     Whisper modeli mock'lanır — ağır model yüklenmez.
     """
     payload = {"audio_file": "mock_audio.wav", "language": "tr"}
@@ -133,3 +134,65 @@ def test_asr_endpoint(mock_transcribe):
     assert data["status"] == "success"
     assert data["transcribed_text"] == "Kamerayı aç"
     mock_transcribe.assert_called_once_with("mock_audio.wav")
+
+
+def test_metrics_endpoint():
+    """Test GET /api/metrics returns performance metrics JSON schema.
+
+    Metrik Raporu Bölüm 3 — endpoint format kontrolü:
+        {
+          "total_sessions": int,
+          "completed_sessions": int,
+          "avg_inference_ms": float,
+          "avg_e2e_seconds": float,
+          "success_rate_percent": float
+        }
+    """
+    response = client.get("/api/metrics")
+    assert response.status_code == 200
+    data = response.json()
+    assert "total_sessions" in data
+    assert "completed_sessions" in data
+    assert "avg_inference_ms" in data
+    assert "avg_e2e_seconds" in data
+    assert "success_rate_percent" in data
+    # Tip kontrolleri
+    assert isinstance(data["total_sessions"], int)
+    assert isinstance(data["avg_inference_ms"], float)
+
+
+def test_command_endpoint_ppe_check():
+    """Test /command endpoint processes PPE compliance check command.
+
+    Beklenen: detect_ppe aksiyonu tetiklensin (PPE_CHECK fazı).
+    """
+    payload = {
+        "command": "kask kontrolu yap",
+        "language": "tr"
+    }
+    response = client.post("/command", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "success"
+    assert data["action"] == "detect_ppe"
+    assert "message" in data
+    assert len(data["executed_actions"]) > 0
+
+
+def test_command_endpoint_video_playback():
+    """Test /command endpoint routes video request to play_instruction_video.
+
+    Metrik Raporu NOT: 'LLM tarafından video tanıtımı sürece eklenecektir.'
+    """
+    payload = {
+        "command": "trafo bakım tanıtım videosunu aç",
+        "language": "tr"
+    }
+    response = client.post("/command", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "success"
+    assert data["action"] == "play_instruction_video"
+    assert "message" in data
+    assert len(data["executed_actions"]) > 0
+    assert data["executed_actions"][0]["action_name"] == "play_instruction_video"
