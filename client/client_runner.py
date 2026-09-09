@@ -24,7 +24,8 @@ class ClientRunner:
         """Send command request payload to backend FastAPI server."""
         endpoint = f"{self.backend_url}/command"
         payload = {
-            "user_input": command_text,
+            "command": command_text,
+            "language": "tr",
             "context": {"device": "SmartGlasses_v1"}
         }
 
@@ -34,7 +35,7 @@ class ClientRunner:
             
             if response.status_code == 200:
                 data = response.json()
-                response_text = data.get("response_text", "İşlem yapıldı.")
+                response_text = data.get("message", "İşlem yapıldı.")
                 actions = data.get("executed_actions", [])
 
                 if actions:

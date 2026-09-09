@@ -10,3 +10,4 @@ pyttsx3>=2.90
 opencv-python>=4.8.0.74
 pytest>=7.4.0
 pytest-asyncio>=0.21.0
+openai-whisper>=20231117
